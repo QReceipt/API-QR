@@ -55,6 +55,7 @@ class Receipt(db.Model):
     deliveryRequests = db.Column(db.String(2048))
     origin = db.Column(db.ForeignKey('Origin.id', onupdate='CASCADE'), index=True)
     orderDate = db.Column(db.DateTime)
+    spoon = db.Column(db.Integer)
 
     Origin = db.relationship('Origin', primaryjoin='Receipt.origin == Origin.id', backref='receipts')
     User = db.relationship('User', primaryjoin='Receipt.seller == User.id', backref='receipts')
