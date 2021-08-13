@@ -1,6 +1,6 @@
 # coding: utf-8
 from flask_sqlalchemy import SQLAlchemy
-
+from .serializer import Serializer
 
 db = SQLAlchemy()
 
@@ -28,6 +28,12 @@ class QRimage(db.Model):
 
     Receipt = db.relationship('Receipt', primaryjoin='QRimage.receipt == Receipt.id', backref='q_rimages')
 
+    def __init__(self, receipt, QRpath) -> None:
+        self.receipt = receipt
+        self.QRpath = QRpath
+
+    def __repr__(self) -> str:
+        return '<QRimage %r>' % (self.QRpath)
 
 
 class Receipt(db.Model):
@@ -47,6 +53,8 @@ class Receipt(db.Model):
 
     User = db.relationship('User', primaryjoin='Receipt.seller == User.id', backref='receipts')
 
+    def __repr__(self) -> str:
+        return '<Receipt %r %r>' % (self.orderDate, self.destinationPhoneNum)
 
 
 class User(db.Model):
@@ -60,3 +68,11 @@ class User(db.Model):
     addr2 = db.Column(db.String(1024))
     phoneNumber = db.Column(db.String(512))
     userCategory = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self) -> str:
+        return '<User %r>' % (self.name)
+
+    def serialize(self):
+        d = Serializer.serialize(self)
+        del d['password']
+        return d 
