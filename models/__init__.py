@@ -1,6 +1,6 @@
 # coding: utf-8
 from flask_sqlalchemy import SQLAlchemy
-from .serializer import Serializer
+
 
 db = SQLAlchemy()
 
@@ -19,13 +19,6 @@ class Menu(db.Model):
 
 
 
-class Origin(db.Model):
-    __tablename__ = 'Origin'
-
-    id = db.Column(db.Integer, primary_key=True)
-    origin = db.Column(db.String(2048))
-
-
 class QRimage(db.Model):
     __tablename__ = 'QRimage'
 
@@ -35,12 +28,7 @@ class QRimage(db.Model):
 
     Receipt = db.relationship('Receipt', primaryjoin='QRimage.receipt == Receipt.id', backref='q_rimages')
 
-    def __init__(self, receipt, QRpath) -> None:
-        self.receipt = receipt
-        self.QRpath = QRpath
 
-    def __repr__(self) -> str:
-        return '<QRimage %r>' % (self.QRpath)
 
 class Receipt(db.Model):
     __tablename__ = 'Receipt'
@@ -53,15 +41,12 @@ class Receipt(db.Model):
     destinationPhoneNum = db.Column(db.String(512))
     shopRequest = db.Column(db.String(2048))
     deliveryRequests = db.Column(db.String(2048))
-    origin = db.Column(db.ForeignKey('Origin.id', onupdate='CASCADE'), index=True)
     orderDate = db.Column(db.DateTime)
     spoon = db.Column(db.Integer)
+    origin = db.Column(db.String(2048))
 
-    Origin = db.relationship('Origin', primaryjoin='Receipt.origin == Origin.id', backref='receipts')
     User = db.relationship('User', primaryjoin='Receipt.seller == User.id', backref='receipts')
 
-    def __repr__(self) -> str:
-        return '<Receipt %r %r>' % (self.orderDate, self.destinationPhoneNum)
 
 
 class User(db.Model):
@@ -75,11 +60,3 @@ class User(db.Model):
     addr2 = db.Column(db.String(1024))
     phoneNumber = db.Column(db.String(512))
     userCategory = db.Column(db.Integer, nullable=False)
-
-    def __repr__(self) -> str:
-        return '<User %r>' % (self.name)
-
-    def serialize(self):
-        d = Serializer.serialize(self)
-        del d['password']
-        return d
