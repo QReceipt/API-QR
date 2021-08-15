@@ -3,6 +3,7 @@ from flask_restx import Resource, Namespace
 import qrcode
 import os
 from models import db, QRimage, Receipt
+import json
 
 QR = Namespace('QR')
 
@@ -13,12 +14,14 @@ IMAGE_DIR = os.path.abspath('./static/images')
 class ReceiptQR(Resource):
     def post(self):
         # 프론트에 호출하는 url넣기 
-        receipt_id = request.json.get('receipt_id')
+        req = json.loads(request.get_data(), encoding='utf-8')
+        receipt_id = req['receipt_id']
+
         receipt = Receipt.query.filter_by(id=receipt_id).first()
         if receipt:
             qr = QRimage.query.filter_by(receipt=receipt_id).first()
             if qr:
-                return {"error":"이미 해당하는 영수증에 대한 QR이 있음"}, 400
+                return {"path":qr.QRpath}, 200
             url = f'https://www.google.com/?receiptId={receipt_id}'
             qr_url = qrcode.make(url)
             file_name = f"receipt-{receipt_id}-qr.png"
@@ -28,7 +31,7 @@ class ReceiptQR(Resource):
             db.session.add(qr_obj)
             db.session.commit()
             if qr_obj.id:
-                return {"result":file_name}, 200
+                return {"path":file_name}, 200
             else:
                 return {"error":"DB에 저장되지 않음"}, 500
         else:

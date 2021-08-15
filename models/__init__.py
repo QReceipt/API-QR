@@ -12,7 +12,7 @@ class Menu(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     receipt = db.Column(db.ForeignKey('Receipt.id', ondelete='CASCADE', onupdate='CASCADE'), index=True)
     menuName = db.Column(db.String(1024), nullable=False)
-    quentity = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.String(512), nullable=False)
 
     Receipt = db.relationship('Receipt', primaryjoin='Menu.receipt == Receipt.id', backref='menus')
