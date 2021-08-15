@@ -4,6 +4,7 @@ import qrcode
 import os
 from models import db, QRimage, Receipt
 import json
+import config
 
 QR = Namespace('QR')
 
@@ -22,7 +23,7 @@ class ReceiptQR(Resource):
             qr = QRimage.query.filter_by(receipt=receipt_id).first()
             if qr:
                 return {"path":qr.QRpath}, 200
-            url = f'https://www.google.com/?receiptId={receipt_id}'
+            url = f'{config.FRONT_URL}?receiptId={receipt_id}'
             qr_url = qrcode.make(url)
             file_name = f"receipt-{receipt_id}-qr.png"
             qr_path = os.path.join(IMAGE_DIR, file_name)
